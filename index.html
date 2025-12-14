@@ -1,0 +1,2529 @@
+<!DOCTYPE html>
+<html lang="fr" dir="ltr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Advanced Reliability Calculator | Calculateur de Fiabilité Avancé</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2.0.0"></script>
+    <style>
+        /* نفس الـ CSS السابق تماماً - لم يتغير */
+        :root {
+            /* Light Mode Colors */
+            --primary-light: #4361ee;
+            --secondary-light: #3a0ca3;
+            --accent-light: #f72585;
+            --success-light: #4cc9f0;
+            --warning-light: #f8961e;
+            --danger-light: #e63946;
+            --background-light: #f8f9fa;
+            --card-light: #ffffff;
+            --text-light: #2d3748;
+            --text-secondary-light: #718096;
+            --border-light: #e2e8f0;
+            --shadow-light: rgba(0, 0, 0, 0.08);
+            
+            /* Dark Mode Colors */
+            --primary-dark: #5a67d8;
+            --secondary-dark: #4c51bf;
+            --accent-dark: #ed64a6;
+            --success-dark: #68d391;
+            --warning-dark: #f6ad55;
+            --danger-dark: #fc8181;
+            --background-dark: #0f172a;
+            --card-dark: #1e293b;
+            --text-dark: #f1f5f9;
+            --text-secondary-dark: #94a3b8;
+            --border-dark: #334155;
+            --shadow-dark: rgba(0, 0, 0, 0.3);
+            
+            /* Default Variables */
+            --primary: var(--primary-light);
+            --secondary: var(--secondary-light);
+            --accent: var(--accent-light);
+            --success: var(--success-light);
+            --warning: var(--warning-light);
+            --danger: var(--danger-light);
+            --background: var(--background-light);
+            --card: var(--card-light);
+            --text: var(--text-light);
+            --text-secondary: var(--text-secondary-light);
+            --border: var(--border-light);
+            --shadow: var(--shadow-light);
+            --radius: 16px;
+            --transition: all 0.3s ease;
+        }
+        
+        /* Dark Mode */
+        body.dark-mode {
+            --primary: var(--primary-dark);
+            --secondary: var(--secondary-dark);
+            --accent: var(--accent-dark);
+            --success: var(--success-dark);
+            --warning: var(--warning-dark);
+            --danger: var(--danger-dark);
+            --background: var(--background-dark);
+            --card: var(--card-dark);
+            --text: var(--text-dark);
+            --text-secondary: var(--text-secondary-dark);
+            --border: var(--border-dark);
+            --shadow: var(--shadow-dark);
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            transition: var(--transition);
+        }
+        
+        body {
+            font-family: 'Poppins', sans-serif;
+            background-color: var(--background);
+            color: var(--text);
+            line-height: 1.6;
+            overflow-x: hidden;
+            transition: var(--transition);
+        }
+        
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+        
+        /* Enhanced Header */
+        header {
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            padding: 20px 0;
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+            box-shadow: 0 6px 25px var(--shadow);
+            backdrop-filter: blur(10px);
+            background-color: rgba(67, 97, 238, 0.95);
+        }
+        
+        .header-content {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+        
+        .logo-icon {
+            background: linear-gradient(135deg, #ffd166, #ef476f);
+            width: 55px;
+            height: 55px;
+            border-radius: 14px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 8px 20px rgba(239, 71, 111, 0.4);
+        }
+        
+        .logo-icon i {
+            font-size: 26px;
+            color: white;
+        }
+        
+        .logo-text h1 {
+            font-size: 1.9rem;
+            font-weight: 800;
+            color: white;
+            line-height: 1.2;
+        }
+        
+        .logo-text span {
+            background: linear-gradient(90deg, #ffd166, #06d6a0);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+        
+        .logo-subtitle {
+            font-size: 0.9rem;
+            opacity: 0.9;
+            color: rgba(255, 255, 255, 0.8);
+        }
+        
+        /* Header Controls */
+        .header-controls {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+        
+        /* Theme Toggle */
+        .theme-toggle {
+            background: rgba(255, 255, 255, 0.15);
+            border: none;
+            width: 56px;
+            height: 32px;
+            border-radius: 50px;
+            position: relative;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            padding: 0 5px;
+        }
+        
+        .theme-toggle i {
+            position: absolute;
+            font-size: 16px;
+            color: white;
+            transition: transform 0.4s cubic-bezier(0.68, -0.55, 0.27, 1.55);
+        }
+        
+        .theme-toggle .fa-sun {
+            left: 6px;
+        }
+        
+        .theme-toggle .fa-moon {
+            right: 6px;
+        }
+        
+        .theme-toggle .toggle-ball {
+            position: absolute;
+            width: 24px;
+            height: 24px;
+            background: white;
+            border-radius: 50%;
+            transition: transform 0.4s cubic-bezier(0.68, -0.55, 0.27, 1.55);
+        }
+        
+        body.dark-mode .theme-toggle .toggle-ball {
+            transform: translateX(24px);
+        }
+        
+        /* Language Switcher */
+        .language-switcher {
+            position: relative;
+        }
+        
+        .language-btn {
+            background: rgba(255, 255, 255, 0.15);
+            border: none;
+            color: white;
+            padding: 10px 20px;
+            border-radius: 10px;
+            font-weight: 600;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            backdrop-filter: blur(10px);
+            min-width: 120px;
+            justify-content: center;
+        }
+        
+        .language-btn i {
+            font-size: 1.2rem;
+        }
+        
+        .language-dropdown {
+            position: absolute;
+            top: 100%;
+            left: 0;
+            right: 0;
+            background: var(--card);
+            border-radius: 12px;
+            padding: 10px;
+            margin-top: 10px;
+            box-shadow: 0 10px 30px var(--shadow);
+            display: none;
+            z-index: 100;
+        }
+        
+        .language-dropdown.show {
+            display: block;
+            animation: fadeIn 0.3s ease;
+        }
+        
+        .language-option {
+            padding: 12px;
+            border-radius: 8px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            color: var(--text);
+            margin-bottom: 5px;
+        }
+        
+        .language-option:hover {
+            background-color: rgba(67, 97, 238, 0.1);
+        }
+        
+        .language-option.active {
+            background-color: rgba(67, 97, 238, 0.2);
+            font-weight: 600;
+            color: var(--primary);
+        }
+        
+        /* Navigation */
+        nav ul {
+            display: flex;
+            list-style: none;
+            gap: 8px;
+        }
+        
+        nav ul li a {
+            color: white;
+            text-decoration: none;
+            font-weight: 600;
+            padding: 12px 22px;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            transition: var(--transition);
+            position: relative;
+            overflow: hidden;
+        }
+        
+        nav ul li a::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(255, 255, 255, 0.1);
+            transform: translateX(-100%);
+            transition: transform 0.4s ease;
+        }
+        
+        nav ul li a:hover::before {
+            transform: translateX(0);
+        }
+        
+        nav ul li a.active {
+            background: rgba(255, 255, 255, 0.2);
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+        }
+        
+        nav ul li a i {
+            font-size: 1.1rem;
+        }
+        
+        /* Hero Section */
+        .hero {
+            padding: 100px 0 60px;
+            position: relative;
+            overflow: hidden;
+            text-align: center;
+        }
+        
+        .hero-bg {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: linear-gradient(135deg, 
+                rgba(67, 97, 238, 0.05) 0%, 
+                rgba(58, 12, 163, 0.05) 50%, 
+                rgba(247, 37, 133, 0.05) 100%);
+            z-index: -1;
+        }
+        
+        .hero-content {
+            max-width: 900px;
+            margin: 0 auto;
+        }
+        
+        .hero h1 {
+            font-size: 3.5rem;
+            font-weight: 800;
+            margin-bottom: 20px;
+            background: linear-gradient(90deg, var(--primary), var(--accent));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+        
+        .developer-name {
+            font-size: 2.5rem;
+            font-weight: 700;
+            color: var(--primary);
+            margin: 20px 0;
+            display: inline-block;
+            padding: 10px 30px;
+            background: rgba(67, 97, 238, 0.1);
+            border-radius: 50px;
+            border: 2px solid var(--primary);
+        }
+        
+        .hero p {
+            font-size: 1.3rem;
+            color: var(--text-secondary);
+            margin-bottom: 40px;
+            line-height: 1.8;
+            max-width: 700px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+        
+        .hero-stats {
+            display: flex;
+            justify-content: center;
+            flex-wrap: wrap;
+            gap: 25px;
+            margin-top: 50px;
+        }
+        
+        .hero-stat {
+            background: var(--card);
+            padding: 25px 30px;
+            border-radius: var(--radius);
+            box-shadow: 0 10px 30px var(--shadow);
+            min-width: 200px;
+            text-align: center;
+            border: 1px solid var(--border);
+            transition: var(--transition);
+        }
+        
+        .hero-stat:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 20px 40px var(--shadow);
+        }
+        
+        .hero-stat-value {
+            font-size: 2.8rem;
+            font-weight: 800;
+            color: var(--primary);
+            margin-bottom: 5px;
+        }
+        
+        .hero-stat-label {
+            color: var(--text-secondary);
+            font-size: 1rem;
+        }
+        
+        /* Global Indicators - Enhanced */
+        .global-indicators {
+            margin: 80px 0;
+        }
+        
+        .section-title {
+            font-size: 2.2rem;
+            font-weight: 800;
+            margin-bottom: 40px;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            color: var(--text);
+        }
+        
+        .section-title i {
+            color: var(--primary);
+        }
+        
+        .global-cards {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(500px, 1fr));
+            gap: 40px;
+            margin-bottom: 50px;
+        }
+        
+        .global-card {
+            background: var(--card);
+            border-radius: var(--radius);
+            padding: 40px;
+            box-shadow: 0 10px 40px var(--shadow);
+            border: 1px solid var(--border);
+            transition: var(--transition);
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .global-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 6px;
+            height: 100%;
+            background: linear-gradient(to bottom, var(--primary), var(--accent));
+        }
+        
+        .global-card:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 20px 50px var(--shadow);
+        }
+        
+        .global-card-header {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+        
+        .global-card-icon {
+            width: 80px;
+            height: 80px;
+            border-radius: 20px;
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 2rem;
+            box-shadow: 0 10px 25px rgba(67, 97, 238, 0.3);
+        }
+        
+        .global-card-title h3 {
+            font-size: 1.8rem;
+            font-weight: 700;
+            color: var(--text);
+            margin-bottom: 8px;
+        }
+        
+        .global-card-title p {
+            color: var(--text-secondary);
+            font-size: 1rem;
+            line-height: 1.5;
+        }
+        
+        /* Enhanced Global Inputs */
+        .global-inputs {
+            display: grid;
+            gap: 25px;
+            margin-bottom: 30px;
+        }
+        
+        .system-type-selector {
+            display: flex;
+            gap: 15px;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+        }
+        
+        .system-type-btn {
+            flex: 1;
+            min-width: 150px;
+            background: var(--background);
+            border: 2px solid var(--border);
+            color: var(--text);
+            padding: 15px;
+            border-radius: 12px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: var(--transition);
+            text-align: center;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .system-type-btn i {
+            font-size: 1.5rem;
+            color: var(--primary);
+        }
+        
+        .system-type-btn.active {
+            background: var(--primary);
+            border-color: var(--primary);
+            color: white;
+        }
+        
+        .system-type-btn.active i {
+            color: white;
+        }
+        
+        .system-type-btn:hover:not(.active) {
+            background: rgba(67, 97, 238, 0.1);
+            border-color: var(--primary);
+        }
+        
+        .component-controls {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            padding: 20px;
+            background: rgba(67, 97, 238, 0.05);
+            border-radius: 12px;
+            border: 1px solid var(--border);
+        }
+        
+        .component-count {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+        
+        .count-btn {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: var(--primary);
+            color: white;
+            border: none;
+            font-size: 1.2rem;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: var(--transition);
+        }
+        
+        .count-btn:hover {
+            background: var(--secondary);
+            transform: scale(1.1);
+        }
+        
+        .count-btn:disabled {
+            background: var(--text-secondary);
+            cursor: not-allowed;
+            transform: none;
+        }
+        
+        .component-count-value {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--primary);
+            min-width: 40px;
+            text-align: center;
+        }
+        
+        .component-count-label {
+            color: var(--text-secondary);
+            font-weight: 600;
+        }
+        
+        .component-reset {
+            background: rgba(247, 37, 133, 0.1);
+            color: var(--accent);
+            border: 1px solid var(--accent);
+            padding: 10px 20px;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: var(--transition);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .component-reset:hover {
+            background: rgba(247, 37, 133, 0.2);
+            transform: translateY(-2px);
+        }
+        
+        /* Component Matrix */
+        .component-matrix {
+            display: grid;
+            gap: 20px;
+            margin-bottom: 25px;
+        }
+        
+        .component-row {
+            display: grid;
+            grid-template-columns: 60px 1fr 1fr 1fr;
+            gap: 15px;
+            align-items: center;
+            padding: 20px;
+            background: var(--background);
+            border-radius: 12px;
+            border: 1px solid var(--border);
+            transition: var(--transition);
+        }
+        
+        .component-row:hover {
+            background: rgba(67, 97, 238, 0.05);
+            border-color: var(--primary);
+        }
+        
+        .component-label {
+            font-weight: 700;
+            color: var(--primary);
+            font-size: 1.1rem;
+        }
+        
+        .matrix-input-group {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+        
+        .matrix-input-group label {
+            font-size: 0.85rem;
+            color: var(--text-secondary);
+            font-weight: 600;
+        }
+        
+        .matrix-input {
+            width: 100%;
+            padding: 12px 15px;
+            background: var(--card);
+            border: 2px solid var(--border);
+            border-radius: 8px;
+            color: var(--text);
+            font-size: 1rem;
+            transition: var(--transition);
+        }
+        
+        .matrix-input:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(67, 97, 238, 0.2);
+        }
+        
+        /* Buttons */
+        .btn-primary {
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            color: white;
+            border: none;
+            padding: 20px 40px;
+            border-radius: 12px;
+            font-size: 1.1rem;
+            font-weight: 600;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 12px;
+            width: 100%;
+            transition: var(--transition);
+            box-shadow: 0 8px 20px rgba(67, 97, 238, 0.3);
+        }
+        
+        .btn-primary:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 15px 30px rgba(67, 97, 238, 0.4);
+        }
+        
+        .btn-primary:active {
+            transform: translateY(0);
+        }
+        
+        /* Enhanced Results */
+        .global-result {
+            background: linear-gradient(135deg, rgba(67, 97, 238, 0.1), rgba(247, 37, 133, 0.05));
+            border-radius: 12px;
+            padding: 30px;
+            border-left: 5px solid var(--primary);
+            margin-top: 30px;
+            display: none;
+            animation: fadeIn 0.5s ease;
+        }
+        
+        .global-result.show {
+            display: block;
+        }
+        
+        .global-result-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+        
+        .global-result h4 {
+            color: var(--primary);
+            font-size: 1.4rem;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .global-result-value {
+            font-size: 3rem;
+            font-weight: 800;
+            color: var(--text);
+            margin: 20px 0;
+            text-align: center;
+        }
+        
+        .global-result-details {
+            color: var(--text-secondary);
+            font-size: 1rem;
+            line-height: 1.7;
+            margin-top: 20px;
+        }
+        
+        .result-breakdown {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            margin-top: 25px;
+            padding-top: 25px;
+            border-top: 1px solid var(--border);
+        }
+        
+        .breakdown-item {
+            text-align: center;
+            padding: 15px;
+            background: var(--background);
+            border-radius: 10px;
+        }
+        
+        .breakdown-label {
+            font-size: 0.9rem;
+            color: var(--text-secondary);
+            margin-bottom: 5px;
+        }
+        
+        .breakdown-value {
+            font-size: 1.3rem;
+            font-weight: 700;
+            color: var(--text);
+        }
+        
+        /* Regular Indicators */
+        .indicators-section {
+            margin: 80px 0;
+        }
+        
+        .indicators-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+            gap: 30px;
+        }
+        
+        .indicator-card {
+            background: var(--card);
+            border-radius: var(--radius);
+            padding: 30px;
+            box-shadow: 0 10px 30px var(--shadow);
+            border: 1px solid var(--border);
+            transition: var(--transition);
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .indicator-card:hover {
+            transform: translateY(-8px);
+            box-shadow: 0 20px 40px var(--shadow);
+        }
+        
+        .indicator-card::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 5px;
+            background: linear-gradient(to right, var(--primary), var(--accent));
+        }
+        
+        .indicator-header {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+            margin-bottom: 25px;
+        }
+        
+        .indicator-icon {
+            width: 60px;
+            height: 60px;
+            border-radius: 14px;
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 1.5rem;
+        }
+        
+        .indicator-title h3 {
+            font-size: 1.4rem;
+            font-weight: 700;
+            color: var(--text);
+            margin-bottom: 5px;
+        }
+        
+        .indicator-title p {
+            color: var(--text-secondary);
+            font-size: 0.9rem;
+        }
+        
+        .indicator-grid-2cols {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+            margin-bottom: 20px;
+        }
+        
+        .input-group {
+            margin-bottom: 0;
+        }
+        
+        .input-group label {
+            display: block;
+            margin-bottom: 10px;
+            font-weight: 600;
+            color: var(--text);
+            font-size: 0.95rem;
+        }
+        
+        .input-with-unit {
+            position: relative;
+        }
+        
+        .input-with-unit input {
+            width: 100%;
+            padding: 16px 20px;
+            background: var(--background);
+            border: 2px solid var(--border);
+            border-radius: 12px;
+            color: var(--text);
+            font-size: 1rem;
+            transition: var(--transition);
+        }
+        
+        .input-with-unit input:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(67, 97, 238, 0.2);
+        }
+        
+        .unit {
+            position: absolute;
+            right: 15px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: var(--text-secondary);
+            font-size: 0.9rem;
+        }
+        
+        /* Charts Section */
+        .charts-section {
+            margin: 80px 0;
+        }
+        
+        .chart-container {
+            background: var(--card);
+            border-radius: var(--radius);
+            padding: 35px;
+            box-shadow: 0 10px 30px var(--shadow);
+            border: 1px solid var(--border);
+            margin-top: 30px;
+        }
+        
+        .chart-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 30px;
+        }
+        
+        .chart-controls {
+            display: flex;
+            gap: 10px;
+        }
+        
+        .chart-btn {
+            background: var(--background);
+            border: 2px solid var(--border);
+            color: var(--text);
+            padding: 10px 20px;
+            border-radius: 10px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: var(--transition);
+        }
+        
+        .chart-btn.active {
+            background: var(--primary);
+            border-color: var(--primary);
+            color: white;
+        }
+        
+        .chart-canvas-container {
+            height: 400px;
+            position: relative;
+        }
+        
+        /* Footer */
+        footer {
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            color: white;
+            padding: 60px 0 30px;
+            margin-top: 80px;
+        }
+        
+        .footer-content {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 40px;
+            margin-bottom: 40px;
+        }
+        
+        .footer-column h3 {
+            font-size: 1.4rem;
+            margin-bottom: 25px;
+            font-weight: 700;
+        }
+        
+        .footer-links {
+            list-style: none;
+        }
+        
+        .footer-links li {
+            margin-bottom: 15px;
+        }
+        
+        .footer-links a {
+            color: rgba(255, 255, 255, 0.8);
+            text-decoration: none;
+            transition: var(--transition);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .footer-links a:hover {
+            color: white;
+            transform: translateX(5px);
+        }
+        
+        .footer-bottom {
+            text-align: center;
+            padding-top: 30px;
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+            color: rgba(255, 255, 255, 0.7);
+            font-size: 0.9rem;
+        }
+        
+        /* Animations */
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+            100% { transform: scale(1); }
+        }
+        
+        .pulse {
+            animation: pulse 2s infinite;
+        }
+        
+        /* Responsive Design */
+        @media (max-width: 1200px) {
+            .global-cards {
+                grid-template-columns: 1fr;
+            }
+            
+            .hero h1 {
+                font-size: 3rem;
+            }
+        }
+        
+        @media (max-width: 992px) {
+            .header-content {
+                flex-direction: column;
+                gap: 20px;
+            }
+            
+            nav ul {
+                flex-wrap: wrap;
+                justify-content: center;
+            }
+            
+            .hero h1 {
+                font-size: 2.5rem;
+            }
+            
+            .developer-name {
+                font-size: 2rem;
+            }
+            
+            .indicators-grid {
+                grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            }
+        }
+        
+        @media (max-width: 768px) {
+            .hero h1 {
+                font-size: 2.2rem;
+            }
+            
+            .developer-name {
+                font-size: 1.8rem;
+                padding: 8px 20px;
+            }
+            
+            .hero p {
+                font-size: 1.1rem;
+            }
+            
+            .section-title {
+                font-size: 1.8rem;
+            }
+            
+            .global-card {
+                padding: 30px 20px;
+            }
+            
+            .component-row {
+                grid-template-columns: 1fr;
+                gap: 10px;
+            }
+            
+            .chart-header {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 20px;
+            }
+            
+            .chart-controls {
+                width: 100%;
+                overflow-x: auto;
+                padding-bottom: 10px;
+            }
+        }
+        
+        @media (max-width: 576px) {
+            .hero-stat {
+                min-width: 140px;
+                padding: 20px;
+            }
+            
+            .hero-stat-value {
+                font-size: 2.2rem;
+            }
+            
+            .global-cards, .indicators-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .language-btn {
+                min-width: 100px;
+            }
+            
+            .system-type-selector {
+                flex-direction: column;
+            }
+        }
+        
+        /* Scrollbar Customization */
+        ::-webkit-scrollbar {
+            width: 10px;
+        }
+        
+        ::-webkit-scrollbar-track {
+            background: var(--background);
+        }
+        
+        ::-webkit-scrollbar-thumb {
+            background: var(--primary);
+            border-radius: 10px;
+        }
+        
+        ::-webkit-scrollbar-thumb:hover {
+            background: var(--secondary);
+        }
+        
+        /* Special Card Colors */
+        .card-mttr .indicator-icon {
+            background: linear-gradient(135deg, #f8961e, #f3722c);
+        }
+        
+        .card-availability .indicator-icon {
+            background: linear-gradient(135deg, #4cc9f0, #4895ef);
+        }
+        
+        .card-failure .indicator-icon {
+            background: linear-gradient(135deg, #f72585, #b5179e);
+        }
+        
+        .card-unreliability .indicator-icon {
+            background: linear-gradient(135deg, #e63946, #d90429);
+        }
+        
+        /* Developer Contact Info */
+        .developer-contact {
+            background: rgba(67, 97, 238, 0.05);
+            border-radius: var(--radius);
+            padding: 30px;
+            margin-top: 30px;
+            border: 1px solid var(--border);
+        }
+        
+        .contact-info {
+            display: flex;
+            justify-content: center;
+            flex-wrap: wrap;
+            gap: 30px;
+            margin-top: 20px;
+        }
+        
+        .contact-item {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+        
+        .contact-icon {
+            width: 50px;
+            height: 50px;
+            border-radius: 12px;
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 1.3rem;
+        }
+        
+        .contact-details h4 {
+            font-size: 1rem;
+            color: var(--text-secondary);
+            margin-bottom: 5px;
+        }
+        
+        .contact-details p, .contact-details a {
+            font-size: 1.1rem;
+            font-weight: 600;
+            color: var(--text);
+            text-decoration: none;
+        }
+        
+        .contact-details a:hover {
+            color: var(--primary);
+            text-decoration: underline;
+        }
+    </style>
+</head>
+<body>
+    <!-- Header -->
+    <header>
+        <div class="container header-content">
+            <div class="logo">
+                <div class="logo-icon pulse">
+                    <i class="fas fa-shield-alt"></i>
+                </div>
+                <div class="logo-text">
+                    <h1><span>Advanced</span> Reliability Calculator</h1>
+                    <div class="logo-subtitle">Professional tool for reliability and maintenance analysis</div>
+                </div>
+            </div>
+            
+            <div class="header-controls">
+                <!-- Theme Toggle -->
+                <button class="theme-toggle" id="themeToggle">
+                    <i class="fas fa-sun"></i>
+                    <i class="fas fa-moon"></i>
+                    <span class="toggle-ball"></span>
+                </button>
+                
+                <!-- Language Switcher -->
+                <div class="language-switcher">
+                    <button class="language-btn" id="languageBtn">
+                        <i class="fas fa-globe"></i>
+                        <span id="currentLang">English</span>
+                    </button>
+                    <div class="language-dropdown" id="languageDropdown">
+                        <div class="language-option active" data-lang="en">
+                            <i class="fas fa-language"></i>
+                            <span>English</span>
+                        </div>
+                        <div class="language-option" data-lang="fr">
+                            <i class="fas fa-language"></i>
+                            <span>Français</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <nav>
+                <ul>
+                    <li><a href="#home" class="active"><i class="fas fa-home"></i> <span class="lang-text" data-en="Home" data-fr="Accueil">Home</span></a></li>
+                    <li><a href="#global"><i class="fas fa-globe"></i> <span class="lang-text" data-en="Global Indicators" data-fr="Indicateurs Globaux">Global Indicators</span></a></li>
+                    <li><a href="#calculators"><i class="fas fa-calculator"></i> <span class="lang-text" data-en="Calculators" data-fr="Calculatrices">Calculators</span></a></li>
+                    <li><a href="#charts"><i class="fas fa-chart-line"></i> <span class="lang-text" data-en="Charts" data-fr="Graphiques">Charts</span></a></li>
+                </ul>
+            </nav>
+        </div>
+    </header>
+    
+    <!-- Main Content -->
+    <main>
+        <!-- Hero Section -->
+        <section class="hero" id="home">
+            <div class="hero-bg"></div>
+            <div class="container hero-content">
+                <h1 class="lang-text" data-en="Advanced Reliability Analysis System" data-fr="Système d'Analyse de Fiabilité Avancé">Advanced Reliability Analysis System</h1>
+                
+                <div class="developer-name">MOHAMED BOUHSINI</div>
+                
+                <p class="lang-text" data-en="Professional integrated tool for calculating and analyzing reliability and maintenance indicators with high accuracy. Designed specifically for maintenance and reliability engineers to make informed decisions." data-fr="Outil professionnel intégré pour calculer et analyser les indicateurs de fiabilité et de maintenance avec une grande précision. Conçu spécialement pour les ingénieurs de maintenance et de fiabilité pour prendre des décisions éclairées.">Professional integrated tool for calculating and analyzing reliability and maintenance indicators with high accuracy. Designed specifically for maintenance and reliability engineers to make informed decisions.</p>
+                
+                <div class="developer-contact">
+                    <div class="contact-info">
+                        <div class="contact-item">
+                            <div class="contact-icon">
+                                <i class="fas fa-envelope"></i>
+                            </div>
+                            <div class="contact-details">
+                                <h4 class="lang-text" data-en="Email" data-fr="Email">Email</h4>
+                                <p><a href="mailto:mohamedbouhsini69@gmail.com">mohamedbouhsini69@gmail.com</a></p>
+                            </div>
+                        </div>
+                        
+                        <div class="contact-item">
+                            <div class="contact-icon">
+                                <i class="fas fa-phone"></i>
+                            </div>
+                            <div class="contact-details">
+                                <h4 class="lang-text" data-en="Phone" data-fr="Téléphone">Phone</h4>
+                                <p><a href="tel:+212664122355">+212 664 122 355</a></p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="hero-stats">
+                    <div class="hero-stat">
+                        <div class="hero-stat-value">10</div>
+                        <div class="hero-stat-label lang-text" data-en="Key Indicators" data-fr="Indicateurs Clés">Key Indicators</div>
+                    </div>
+                    <div class="hero-stat">
+                        <div class="hero-stat-value">100%</div>
+                        <div class="hero-stat-label lang-text" data-en="Calculation Accuracy" data-fr="Précision des Calculs">Calculation Accuracy</div>
+                    </div>
+                    <div class="hero-stat">
+                        <div class="hero-stat-value">2</div>
+                        <div class="hero-stat-label lang-text" data-en="Languages" data-fr="Langues">Languages</div>
+                    </div>
+                    <div class="hero-stat">
+                        <div class="hero-stat-value">∞</div>
+                        <div class="hero-stat-label lang-text" data-en="Unlimited Calculations" data-fr="Calculs Illimités">Unlimited Calculations</div>
+                    </div>
+                </div>
+            </div>
+        </section>
+        
+        <!-- Enhanced Global Indicators -->
+        <section class="global-indicators container" id="global">
+            <h2 class="section-title">
+                <i class="fas fa-globe-americas"></i>
+                <span class="lang-text" data-en="Advanced Global Indicators" data-fr="Indicateurs Globaux Avancés">Advanced Global Indicators</span>
+            </h2>
+            
+            <div class="global-cards">
+                <!-- Enhanced R Global -->
+                <div class="global-card">
+                    <div class="global-card-header">
+                        <div class="global-card-icon">
+                            <i class="fas fa-chart-pie"></i>
+                        </div>
+                        <div class="global-card-title">
+                            <h3 class="lang-text" data-en="Global Reliability R<sub>global</sub>" data-fr="Fiabilité Globale R<sub>global</sub>">Global Reliability R<sub>global</sub></h3>
+                            <p class="lang-text" data-en="Calculation of overall reliability for complex multi-component systems with different configurations" data-fr="Calcul de la fiabilité globale pour des systèmes multicomposants complexes avec différentes configurations">Calculation of overall reliability for complex multi-component systems with different configurations</p>
+                        </div>
+                    </div>
+                    
+                    <div class="system-type-selector">
+                        <button class="system-type-btn active" data-type="series">
+                            <i class="fas fa-link"></i>
+                            <span class="lang-text" data-en="Series System" data-fr="Système Série">Series System</span>
+                        </button>
+                        <button class="system-type-btn" data-type="parallel">
+                            <i class="fas fa-columns"></i>
+                            <span class="lang-text" data-en="Parallel System" data-fr="Système Parallèle">Parallel System</span>
+                        </button>
+                        <button class="system-type-btn" data-type="mixed">
+                            <i class="fas fa-project-diagram"></i>
+                            <span class="lang-text" data-en="Mixed System" data-fr="Système Mixte">Mixed System</span>
+                        </button>
+                    </div>
+                    
+                    <div class="component-controls">
+                        <div class="component-count">
+                            <button class="count-btn" id="decreaseComponents">-</button>
+                            <div class="component-count-value" id="componentCount">3</div>
+                            <button class="count-btn" id="increaseComponents">+</button>
+                            <div class="component-count-label lang-text" data-en="Components" data-fr="Composants">Components</div>
+                        </div>
+                        <button class="component-reset" id="resetRGlobal">
+                            <i class="fas fa-redo"></i>
+                            <span class="lang-text" data-en="Reset All" data-fr="Réinitialiser">Reset All</span>
+                        </button>
+                    </div>
+                    
+                    <div class="component-matrix" id="rGlobalMatrix">
+                        <!-- Component inputs will be generated here -->
+                    </div>
+                    
+                    <button class="btn-primary" onclick="calculateRGlobal()">
+                        <i class="fas fa-calculator"></i>
+                        <span class="lang-text" data-en="Calculate R<sub>global</sub>" data-fr="Calculer R<sub>global</sub>">Calculate R<sub>global</sub></span>
+                    </button>
+                    
+                    <div class="global-result" id="rGlobalResult">
+                        <div class="global-result-header">
+                            <h4><i class="fas fa-check-circle"></i> <span class="lang-text" data-en="Global Reliability Result" data-fr="Résultat de Fiabilité Globale">Global Reliability Result</span></h4>
+                            <div class="system-badge" id="systemTypeBadge">Series System</div>
+                        </div>
+                        <div class="global-result-value">R<sub>global</sub> = <span id="rGlobalValue">0</span></div>
+                        <div class="global-result-details">
+                            <p class="lang-text" data-en="The overall reliability of the <span id='systemTypeText'>series</span> system with <span id='componentCountText'>3</span> components is <span id='rGlobalPercent'>0</span>%" data-fr="La fiabilité globale du système <span id='systemTypeTextFr'>série</span> avec <span id='componentCountTextFr'>3</span> composants est de <span id='rGlobalPercentFr'>0</span>%">The overall reliability of the <span id="systemTypeText">series</span> system with <span id="componentCountText">3</span> components is <span id="rGlobalPercent">0</span>%</p>
+                        </div>
+                        <div class="result-breakdown" id="rGlobalBreakdown">
+                            <!-- Breakdown will be added here -->
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Enhanced MTBF Global -->
+                <div class="global-card">
+                    <div class="global-card-header">
+                        <div class="global-card-icon">
+                            <i class="fas fa-clock"></i>
+                        </div>
+                        <div class="global-card-title">
+                            <h3 class="lang-text" data-en="Global MTBF" data-fr="MTBF Global">Global MTBF</h3>
+                            <p class="lang-text" data-en="Mean Time Between Failures analysis for complex systems with multiple failure modes" data-fr="Analyse du temps moyen entre pannes pour des systèmes complexes avec multiples modes de défaillance">Mean Time Between Failures analysis for complex systems with multiple failure modes</p>
+                        </div>
+                    </div>
+                    
+                    <div class="system-type-selector">
+                        <button class="system-type-btn active" data-type="series" data-for="mtbf">
+                            <i class="fas fa-link"></i>
+                            <span class="lang-text" data-en="Series" data-fr="Série">Series</span>
+                        </button>
+                        <button class="system-type-btn" data-type="parallel" data-for="mtbf">
+                            <i class="fas fa-columns"></i>
+                            <span class="lang-text" data-en="Parallel" data-fr="Parallèle">Parallel</span>
+                        </button>
+                        <button class="system-type-btn" data-type="k-out-of-n" data-for="mtbf">
+                            <i class="fas fa-sitemap"></i>
+                            <span class="lang-text" data-en="K-out-of-N" data-fr="K-parmi-N">K-out-of-N</span>
+                        </button>
+                    </div>
+                    
+                    <div class="component-controls">
+                        <div class="component-count">
+                            <button class="count-btn" id="decreaseMTBFComponents">-</button>
+                            <div class="component-count-value" id="mtbfComponentCount">3</div>
+                            <button class="count-btn" id="increaseMTBFComponents">+</button>
+                            <div class="component-count-label lang-text" data-en="Components" data-fr="Composants">Components</div>
+                        </div>
+                        <div id="kOutOfNControl" style="display: none;">
+                            <div class="component-count">
+                                <span class="lang-text" data-en="K =" data-fr="K =">K =</span>
+                                <input type="number" id="kValue" min="1" max="3" value="2" style="width: 60px; padding: 5px; margin: 0 10px; border-radius: 5px; border: 1px solid var(--border);">
+                                <span class="lang-text" data-en="out of N =" data-fr="parmi N =">out of N =</span>
+                                <span id="nValue" style="font-weight: bold; margin-left: 5px;">3</span>
+                            </div>
+                        </div>
+                        <button class="component-reset" id="resetMTBFGlobal">
+                            <i class="fas fa-redo"></i>
+                            <span class="lang-text" data-en="Reset All" data-fr="Réinitialiser">Reset All</span>
+                        </button>
+                    </div>
+                    
+                    <div class="component-matrix" id="mtbfGlobalMatrix">
+                        <!-- MTBF component inputs will be generated here -->
+                    </div>
+                    
+                    <button class="btn-primary" onclick="calculateMTBFGlobal()">
+                        <i class="fas fa-calculator"></i>
+                        <span class="lang-text" data-en="Calculate MTBF<sub>global</sub>" data-fr="Calculer MTBF<sub>global</sub>">Calculate MTBF<sub>global</sub></span>
+                    </button>
+                    
+                    <div class="global-result" id="mtbfGlobalResult">
+                        <div class="global-result-header">
+                            <h4><i class="fas fa-check-circle"></i> <span class="lang-text" data-en="Global MTBF Result" data-fr="Résultat du MTBF Global">Global MTBF Result</span></h4>
+                            <div class="system-badge" id="mtbfSystemTypeBadge">Series System</div>
+                        </div>
+                        <div class="global-result-value">MTBF<sub>global</sub> = <span id="mtbfGlobalValue">0</span> <span class="lang-text" data-en="hours" data-fr="heures">hours</span></div>
+                        <div class="global-result-details">
+                            <p class="lang-text" data-en="The mean time between failures of the <span id='mtbfSystemTypeText'>series</span> system with <span id='mtbfComponentCountText'>3</span> components is <span id='mtbfGlobalHours'>0</span> hours" data-fr="Le temps moyen entre pannes du système <span id='mtbfSystemTypeTextFr'>série</span> avec <span id='mtbfComponentCountTextFr'>3</span> composants est de <span id='mtbfGlobalHoursFr'>0</span> heures">The mean time between failures of the <span id="mtbfSystemTypeText">series</span> system with <span id="mtbfComponentCountText">3</span> components is <span id="mtbfGlobalHours">0</span> hours</p>
+                        </div>
+                        <div class="result-breakdown" id="mtbfGlobalBreakdown">
+                            <!-- Breakdown will be added here -->
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+        
+        <!-- Regular Indicators -->
+        <section class="indicators-section container" id="calculators">
+            <h2 class="section-title">
+                <i class="fas fa-calculator"></i>
+                <span class="lang-text" data-en="Reliability Indicators" data-fr="Indicateurs de Fiabilité">Reliability Indicators</span>
+            </h2>
+            
+            <div class="indicators-grid">
+                <!-- Reliability R(t) -->
+                <div class="indicator-card">
+                    <div class="indicator-header">
+                        <div class="indicator-icon">
+                            <i class="fas fa-chart-line"></i>
+                        </div>
+                        <div class="indicator-title">
+                            <h3 class="lang-text" data-en="Reliability R(t)" data-fr="Fiabilité R(t)">Reliability R(t)</h3>
+                            <p class="lang-text" data-en="Probability of system operation without failure until time t" data-fr="Probabilité de fonctionnement sans défaillance jusqu'au temps t">Probability of system operation without failure until time t</p>
+                        </div>
+                    </div>
+                    
+                    <div class="indicator-grid-2cols">
+                        <div class="input-group">
+                            <label class="lang-text" data-en="Failure Rate (λ)" data-fr="Taux de Défaillance (λ)">Failure Rate (λ)</label>
+                            <div class="input-with-unit">
+                                <input type="number" id="failureRate" step="0.001" placeholder="0.001" min="0" value="0.001">
+                                <span class="unit lang-text" data-en="/hour" data-fr="/heure">/hour</span>
+                            </div>
+                        </div>
+                        
+                        <div class="input-group">
+                            <label class="lang-text" data-en="Time (t)" data-fr="Temps (t)">Time (t)</label>
+                            <div class="input-with-unit">
+                                <input type="number" id="timeR" step="0.1" placeholder="100" min="0" value="100">
+                                <span class="unit lang-text" data-en="hours" data-fr="heures">hours</span>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <button class="btn-primary" onclick="calculateReliability()">
+                        <i class="fas fa-calculator"></i>
+                        <span class="lang-text" data-en="Calculate R(t)" data-fr="Calculer R(t)">Calculate R(t)</span>
+                    </button>
+                    
+                    <div class="global-result" id="reliabilityResult">
+                        <h4><i class="fas fa-check-circle"></i> <span class="lang-text" data-en="Reliability Result" data-fr="Résultat de Fiabilité">Reliability Result</span></h4>
+                        <div class="global-result-value">R(<span id="timeDisplayR">0</span>) = <span id="reliabilityValue">0</span></div>
+                        <div class="global-result-details lang-text" data-en="The probability that the system will continue to operate after <span id='timeDisplayR2'>0</span> hours is <span id='reliabilityPercent'>0</span>%" data-fr="La probabilité que le système continue de fonctionner après <span id='timeDisplayR2Fr'>0</span> heures est de <span id='reliabilityPercentFr'>0</span>%">The probability that the system will continue to operate after <span id="timeDisplayR2">0</span> hours is <span id="reliabilityPercent">0</span>%</div>
+                    </div>
+                </div>
+                
+                <!-- Unreliability F(t) -->
+                <div class="indicator-card card-unreliability">
+                    <div class="indicator-header">
+                        <div class="indicator-icon">
+                            <i class="fas fa-exclamation-triangle"></i>
+                        </div>
+                        <div class="indicator-title">
+                            <h3 class="lang-text" data-en="Unreliability F(t)" data-fr="Défiabilité F(t)">Unreliability F(t)</h3>
+                            <p class="lang-text" data-en="Probability of system failure before time t" data-fr="Probabilité de défaillance du système avant le temps t">Probability of system failure before time t</p>
+                        </div>
+                    </div>
+                    
+                    <div class="indicator-grid-2cols">
+                        <div class="input-group">
+                            <label class="lang-text" data-en="Failure Rate (λ)" data-fr="Taux de Défaillance (λ)">Failure Rate (λ)</label>
+                            <div class="input-with-unit">
+                                <input type="number" id="failureRateF" step="0.001" placeholder="0.001" min="0" value="0.001">
+                                <span class="unit lang-text" data-en="/hour" data-fr="/heure">/hour</span>
+                            </div>
+                        </div>
+                        
+                        <div class="input-group">
+                            <label class="lang-text" data-en="Time (t)" data-fr="Temps (t)">Time (t)</label>
+                            <div class="input-with-unit">
+                                <input type="number" id="timeF" step="0.1" placeholder="100" min="0" value="100">
+                                <span class="unit lang-text" data-en="hours" data-fr="heures">hours</span>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <button class="btn-primary" onclick="calculateUnreliability()">
+                        <i class="fas fa-calculator"></i>
+                        <span class="lang-text" data-en="Calculate F(t)" data-fr="Calculer F(t)">Calculate F(t)</span>
+                    </button>
+                    
+                    <div class="global-result" id="unreliabilityResult">
+                        <h4><i class="fas fa-check-circle"></i> <span class="lang-text" data-en="Unreliability Result" data-fr="Résultat de Défiabilité">Unreliability Result</span></h4>
+                        <div class="global-result-value">F(<span id="timeDisplayF">0</span>) = <span id="unreliabilityValue">0</span></div>
+                        <div class="global-result-details lang-text" data-en="The probability of system failure before <span id='timeDisplayF2'>0</span> hours is <span id='unreliabilityPercent'>0</span>%" data-fr="La probabilité de défaillance du système avant <span id='timeDisplayF2Fr'>0</span> heures est de <span id='unreliabilityPercentFr'>0</span>%">The probability of system failure before <span id="timeDisplayF2">0</span> hours is <span id="unreliabilityPercent">0</span>%</div>
+                    </div>
+                </div>
+                
+                <!-- MTBF -->
+                <div class="indicator-card">
+                    <div class="indicator-header">
+                        <div class="indicator-icon">
+                            <i class="fas fa-clock"></i>
+                        </div>
+                        <div class="indicator-title">
+                            <h3 class="lang-text" data-en="Mean Time Between Failures (MTBF)" data-fr="Temps Moyen Entre Pannes (MTBF)">Mean Time Between Failures (MTBF)</h3>
+                            <p class="lang-text" data-en="Average expected time between two consecutive failures" data-fr="Temps moyen attendu entre deux défaillances consécutives">Average expected time between two consecutive failures</p>
+                        </div>
+                    </div>
+                    
+                    <div class="indicator-grid-2cols">
+                        <div class="input-group">
+                            <label class="lang-text" data-en="Total Operation Time" data-fr="Temps de Fonctionnement Total">Total Operation Time</label>
+                            <div class="input-with-unit">
+                                <input type="number" id="totalOperationTime" step="1" placeholder="10000" min="0" value="10000">
+                                <span class="unit lang-text" data-en="hours" data-fr="heures">hours</span>
+                            </div>
+                        </div>
+                        
+                        <div class="input-group">
+                            <label class="lang-text" data-en="Number of Failures" data-fr="Nombre de Défaillances">Number of Failures</label>
+                            <div class="input-with-unit">
+                                <input type="number" id="numberOfFailures" step="1" placeholder="5" min="0" value="5">
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <button class="btn-primary" onclick="calculateMTBF()">
+                        <i class="fas fa-calculator"></i>
+                        <span class="lang-text" data-en="Calculate MTBF" data-fr="Calculer MTBF">Calculate MTBF</span>
+                    </button>
+                    
+                    <div class="global-result" id="mtbfResult">
+                        <h4><i class="fas fa-check-circle"></i> <span class="lang-text" data-en="MTBF Result" data-fr="Résultat MTBF">MTBF Result</span></h4>
+                        <div class="global-result-value">MTBF = <span id="mtbfValue">0</span> <span class="lang-text" data-en="hours" data-fr="heures">hours</span></div>
+                        <div class="global-result-details lang-text" data-en="Corresponding failure rate λ = <span id='failureRateFromMTBF'>0</span> per hour" data-fr="Le taux de défaillance correspondant λ = <span id='failureRateFromMTBFFr'>0</span> par heure">Corresponding failure rate λ = <span id="failureRateFromMTBF">0</span> per hour</div>
+                    </div>
+                </div>
+                
+                <!-- MTTR -->
+                <div class="indicator-card card-mttr">
+                    <div class="indicator-header">
+                        <div class="indicator-icon">
+                            <i class="fas fa-tools"></i>
+                        </div>
+                        <div class="indicator-title">
+                            <h3 class="lang-text" data-en="Mean Time To Repair (MTTR)" data-fr="Temps Moyen de Réparation (MTTR)">Mean Time To Repair (MTTR)</h3>
+                            <p class="lang-text" data-en="Average time required to repair the system after failure" data-fr="Temps moyen nécessaire pour réparer le système après une défaillance">Average time required to repair the system after failure</p>
+                        </div>
+                    </div>
+                    
+                    <div class="indicator-grid-2cols">
+                        <div class="input-group">
+                            <label class="lang-text" data-en="Total Repair Time" data-fr="Temps de Réparation Total">Total Repair Time</label>
+                            <div class="input-with-unit">
+                                <input type="number" id="totalRepairTime" step="1" placeholder="50" min="0" value="50">
+                                <span class="unit lang-text" data-en="hours" data-fr="heures">hours</span>
+                            </div>
+                        </div>
+                        
+                        <div class="input-group">
+                            <label class="lang-text" data-en="Number of Repairs" data-fr="Nombre de Réparations">Number of Repairs</label>
+                            <div class="input-with-unit">
+                                <input type="number" id="numberOfRepairs" step="1" placeholder="5" min="0" value="5">
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <button class="btn-primary" onclick="calculateMTTR()">
+                        <i class="fas fa-calculator"></i>
+                        <span class="lang-text" data-en="Calculate MTTR" data-fr="Calculer MTTR">Calculate MTTR</span>
+                    </button>
+                    
+                    <div class="global-result" id="mttrResult">
+                        <h4><i class="fas fa-check-circle"></i> <span class="lang-text" data-en="MTTR Result" data-fr="Résultat MTTR">MTTR Result</span></h4>
+                        <div class="global-result-value">MTTR = <span id="mttrValue">0</span> <span class="lang-text" data-en="hours" data-fr="heures">hours</span></div>
+                        <div class="global-result-details lang-text" data-en="Total downtime = <span id='totalDowntime'>0</span> hours" data-fr="Temps d'arrêt total = <span id='totalDowntimeFr'>0</span> heures">Total downtime = <span id="totalDowntime">0</span> hours</div>
+                    </div>
+                </div>
+                
+                <!-- Availability -->
+                <div class="indicator-card card-availability">
+                    <div class="indicator-header">
+                        <div class="indicator-icon">
+                            <i class="fas fa-check-circle"></i>
+                        </div>
+                        <div class="indicator-title">
+                            <h3 class="lang-text" data-en="Availability" data-fr="Disponibilité">Availability</h3>
+                            <p class="lang-text" data-en="Probability that the system is operational at a given time" data-fr="Probabilité que le système soit en état de fonctionnement à un moment donné">Probability that the system is operational at a given time</p>
+                        </div>
+                    </div>
+                    
+                    <div class="indicator-grid-2cols">
+                        <div class="input-group">
+                            <label class="lang-text" data-en="MTBF" data-fr="MTBF">MTBF</label>
+                            <div class="input-with-unit">
+                                <input type="number" id="mtbfInput" step="0.1" placeholder="2000" min="0" value="2000">
+                                <span class="unit lang-text" data-en="hours" data-fr="heures">hours</span>
+                            </div>
+                        </div>
+                        
+                        <div class="input-group">
+                            <label class="lang-text" data-en="MTTR" data-fr="MTTR">MTTR</label>
+                            <div class="input-with-unit">
+                                <input type="number" id="mttrInput" step="0.1" placeholder="10" min="0" value="10">
+                                <span class="unit lang-text" data-en="hours" data-fr="heures">hours</span>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <button class="btn-primary" onclick="calculateAvailability()">
+                        <i class="fas fa-calculator"></i>
+                        <span class="lang-text" data-en="Calculate Availability" data-fr="Calculer la Disponibilité">Calculate Availability</span>
+                    </button>
+                    
+                    <div class="global-result" id="availabilityResult">
+                        <h4><i class="fas fa-check-circle"></i> <span class="lang-text" data-en="Availability Result" data-fr="Résultat de Disponibilité">Availability Result</span></h4>
+                        <div class="global-result-value">A = <span id="availabilityValue">0</span></div>
+                        <div class="global-result-details lang-text" data-en="Availability rate = <span id='availabilityPercent'>0</span>%" data-fr="Taux de disponibilité = <span id='availabilityPercentFr'>0</span>%">Availability rate = <span id="availabilityPercent">0</span>%</div>
+                    </div>
+                </div>
+                
+                <!-- Failure Rate -->
+                <div class="indicator-card card-failure">
+                    <div class="indicator-header">
+                        <div class="indicator-icon">
+                            <i class="fas fa-bolt"></i>
+                        </div>
+                        <div class="indicator-title">
+                            <h3 class="lang-text" data-en="Failure Rate (λ)" data-fr="Taux de Défaillance (λ)">Failure Rate (λ)</h3>
+                            <p class="lang-text" data-en="Expected number of failures per unit time" data-fr="Nombre de défaillances attendues par unité de temps">Expected number of failures per unit time</p>
+                        </div>
+                    </div>
+                    
+                    <div class="indicator-grid-2cols">
+                        <div class="input-group">
+                            <label class="lang-text" data-en="Number of Failures" data-fr="Nombre de Défaillances">Number of Failures</label>
+                            <div class="input-with-unit">
+                                <input type="number" id="failuresForLambda" step="1" placeholder="10" min="0" value="10">
+                            </div>
+                        </div>
+                        
+                        <div class="input-group">
+                            <label class="lang-text" data-en="Total Operation Time" data-fr="Temps de Fonctionnement Total">Total Operation Time</label>
+                            <div class="input-with-unit">
+                                <input type="number" id="totalTimeForLambda" step="1" placeholder="5000" min="0" value="5000">
+                                <span class="unit lang-text" data-en="hours" data-fr="heures">hours</span>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <button class="btn-primary" onclick="calculateFailureRate()">
+                        <i class="fas fa-calculator"></i>
+                        <span class="lang-text" data-en="Calculate Failure Rate" data-fr="Calculer le Taux de Défaillance">Calculate Failure Rate</span>
+                    </button>
+                    
+                    <div class="global-result" id="failureRateResult">
+                        <h4><i class="fas fa-check-circle"></i> <span class="lang-text" data-en="Failure Rate Result" data-fr="Résultat du Taux de Défaillance">Failure Rate Result</span></h4>
+                        <div class="global-result-value">λ = <span id="failureRateValue">0</span></div>
+                        <div class="global-result-details lang-text" data-en="Mean time between failures MTBF = <span id='mtbfFromLambda'>0</span> hours" data-fr="Temps moyen entre pannes MTBF = <span id='mtbfFromLambdaFr'>0</span> heures">Mean time between failures MTBF = <span id="mtbfFromLambda">0</span> hours</div>
+                    </div>
+                </div>
+            </div>
+        </section>
+        
+        <!-- Charts Section -->
+        <section class="charts-section container" id="charts">
+            <h2 class="section-title">
+                <i class="fas fa-chart-line"></i>
+                <span class="lang-text" data-en="Charts & Visualizations" data-fr="Graphiques & Visualisations">Charts & Visualizations</span>
+            </h2>
+            
+            <div class="chart-container">
+                <div class="chart-header">
+                    <h3 class="lang-text" data-en="Reliability vs Time Chart" data-fr="Graphique de Fiabilité vs Temps">Reliability vs Time Chart</h3>
+                    <div class="chart-controls">
+                        <button class="chart-btn active" onclick="changeChartType('reliability')">
+                            <span class="lang-text" data-en="Reliability" data-fr="Fiabilité">Reliability</span>
+                        </button>
+                        <button class="chart-btn" onclick="changeChartType('unreliability')">
+                            <span class="lang-text" data-en="Unreliability" data-fr="Défiabilité">Unreliability</span>
+                        </button>
+                        <button class="chart-btn" onclick="changeChartType('failure')">
+                            <span class="lang-text" data-en="Failure Rate" data-fr="Taux de Défaillance">Failure Rate</span>
+                        </button>
+                        <button class="chart-btn" onclick="changeChartType('all')">
+                            <span class="lang-text" data-en="All" data-fr="Tous">All</span>
+                        </button>
+                    </div>
+                </div>
+                
+                <div class="chart-canvas-container">
+                    <canvas id="reliabilityChart"></canvas>
+                </div>
+            </div>
+        </section>
+    </main>
+    
+    <!-- Footer -->
+    <footer>
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-column">
+                    <h3 class="lang-text" data-en="Reliability Calculator" data-fr="Calculateur de Fiabilité">Reliability Calculator</h3>
+                    <p class="lang-text" data-en="Advanced integrated tool for calculating reliability and maintenance indicators with high accuracy." data-fr="Outil intégré avancé pour calculer les indicateurs de fiabilité et de maintenance avec une grande précision.">Advanced integrated tool for calculating reliability and maintenance indicators with high accuracy.</p>
+                </div>
+                
+                <div class="footer-column">
+                    <h3 class="lang-text" data-en="Developer" data-fr="Développeur">Developer</h3>
+                    <ul class="footer-links">
+                        <li><i class="fas fa-user"></i> <span>MOHAMED BOUHSINI</span></li>
+                        <li><a href="mailto:mohamedbouhsini69@gmail.com"><i class="fas fa-envelope"></i> <span>mohamedbouhsini69@gmail.com</span></a></li>
+                        <li><a href="tel:+212664122355"><i class="fas fa-phone"></i> <span>+212 664 122 355</span></a></li>
+                        <li><i class="fas fa-map-marker-alt"></i> <span>Tangier, Morocco</span></li>
+                    </ul>
+                </div>
+                
+                <div class="footer-column">
+                    <h3 class="lang-text" data-en="Quick Links" data-fr="Liens Rapides">Quick Links</h3>
+                    <ul class="footer-links">
+                        <li><a href="#home"><i class="fas fa-chevron-right"></i> <span class="lang-text" data-en="Home" data-fr="Accueil">Home</span></a></li>
+                        <li><a href="#global"><i class="fas fa-chevron-right"></i> <span class="lang-text" data-en="Global Indicators" data-fr="Indicateurs Globaux">Global Indicators</span></a></li>
+                        <li><a href="#calculators"><i class="fas fa-chevron-right"></i> <span class="lang-text" data-en="Calculators" data-fr="Calculatrices">Calculators</span></a></li>
+                        <li><a href="#charts"><i class="fas fa-chevron-right"></i> <span class="lang-text" data-en="Charts" data-fr="Graphiques">Charts</span></a></li>
+                    </ul>
+                </div>
+            </div>
+            
+            <div class="footer-bottom">
+                <p class="lang-text" data-en="© 2023 Advanced Reliability Calculator. Developed by MOHAMED BOUHSINI. All rights reserved." data-fr="© 2023 Calculateur de Fiabilité Avancé. Développé par MOHAMED BOUHSINI. Tous droits réservés.">© 2023 Advanced Reliability Calculator. Developed by MOHAMED BOUHSINI. All rights reserved.</p>
+                <p class="lang-text" data-en="Designed with ❤️ to help reliability engineers worldwide" data-fr="Conçu avec ❤️ pour aider les ingénieurs en fiabilité du monde entier">Designed with ❤️ to help reliability engineers worldwide</p>
+            </div>
+        </div>
+    </footer>
+    
+    <script>
+        // Initialize variables
+        let currentLanguage = 'en';
+        let currentSystemType = 'series';
+        let currentMTBFSystemType = 'series';
+        let componentCount = 3;
+        let mtbfComponentCount = 3;
+        let reliabilityChart = null;
+        
+        // Initialize the site
+        document.addEventListener('DOMContentLoaded', function() {
+            // Initialize theme
+            const savedTheme = localStorage.getItem('theme') || 'light';
+            if (savedTheme === 'dark') {
+                document.body.classList.add('dark-mode');
+            }
+            
+            // Initialize language
+            const savedLang = localStorage.getItem('language') || 'en';
+            changeLanguage(savedLang);
+            
+            // Initialize component matrices
+            generateRGlobalMatrix();
+            generateMTBFGlobalMatrix();
+            
+            // Set default values
+            document.getElementById('failureRate').value = '0.001';
+            document.getElementById('timeR').value = '100';
+            document.getElementById('failureRateF').value = '0.001';
+            document.getElementById('timeF').value = '100';
+            document.getElementById('totalOperationTime').value = '10000';
+            document.getElementById('numberOfFailures').value = '5';
+            document.getElementById('totalRepairTime').value = '50';
+            document.getElementById('numberOfRepairs').value = '5';
+            document.getElementById('mtbfInput').value = '2000';
+            document.getElementById('mttrInput').value = '10';
+            document.getElementById('failuresForLambda').value = '10';
+            document.getElementById('totalTimeForLambda').value = '5000';
+            
+            // Create chart
+            createReliabilityChart();
+            
+            // Add event listeners
+            setupEventListeners();
+        });
+        
+        // Theme toggle
+        document.getElementById('themeToggle').addEventListener('click', function() {
+            document.body.classList.toggle('dark-mode');
+            const isDarkMode = document.body.classList.contains('dark-mode');
+            localStorage.setItem('theme', isDarkMode ? 'dark' : 'light');
+        });
+        
+        // Language switcher
+        document.getElementById('languageBtn').addEventListener('click', function() {
+            document.getElementById('languageDropdown').classList.toggle('show');
+        });
+        
+        // Close language dropdown when clicking outside
+        document.addEventListener('click', function(event) {
+            const languageSwitcher = document.getElementById('languageDropdown');
+            const languageBtn = document.getElementById('languageBtn');
+            if (!languageBtn.contains(event.target) && !languageSwitcher.contains(event.target)) {
+                languageSwitcher.classList.remove('show');
+            }
+        });
+        
+        // Change language
+        document.querySelectorAll('.language-option').forEach(option => {
+            option.addEventListener('click', function() {
+                const lang = this.getAttribute('data-lang');
+                changeLanguage(lang);
+                document.getElementById('languageDropdown').classList.remove('show');
+                
+                // Update active state
+                document.querySelectorAll('.language-option').forEach(opt => {
+                    opt.classList.remove('active');
+                });
+                this.classList.add('active');
+            });
+        });
+        
+        // Change language function
+        function changeLanguage(lang) {
+            currentLanguage = lang;
+            document.documentElement.lang = lang;
+            
+            // Update current language button
+            document.getElementById('currentLang').textContent = 
+                lang === 'en' ? 'English' : 'Français';
+            
+            // Update all language-specific texts
+            document.querySelectorAll('.lang-text').forEach(element => {
+                const textEn = element.getAttribute('data-en');
+                const textFr = element.getAttribute('data-fr');
+                if (lang === 'en' && textEn) {
+                    element.innerHTML = textEn;
+                } else if (lang === 'fr' && textFr) {
+                    element.innerHTML = textFr;
+                }
+            });
+            
+            // Save language preference
+            localStorage.setItem('language', lang);
+        }
+        
+        // Helper function for translations
+        function getTranslation(en, fr) {
+            return currentLanguage === 'en' ? en : fr;
+        }
+        
+        // Setup event listeners
+        function setupEventListeners() {
+            // System type buttons for R Global
+            document.querySelectorAll('.system-type-btn[data-type]').forEach(btn => {
+                if (!btn.hasAttribute('data-for')) {
+                    btn.addEventListener('click', function() {
+                        const type = this.getAttribute('data-type');
+                        currentSystemType = type;
+                        
+                        // Update active state
+                        document.querySelectorAll('.system-type-btn').forEach(b => {
+                            b.classList.remove('active');
+                        });
+                        this.classList.add('active');
+                    });
+                }
+            });
+            
+            // System type buttons for MTBF Global
+            document.querySelectorAll('.system-type-btn[data-for="mtbf"]').forEach(btn => {
+                btn.addEventListener('click', function() {
+                    const type = this.getAttribute('data-type');
+                    currentMTBFSystemType = type;
+                    
+                    // Update active state
+                    document.querySelectorAll('.system-type-btn[data-for="mtbf"]').forEach(b => {
+                        b.classList.remove('active');
+                    });
+                    this.classList.add('active');
+                    
+                    // Show/hide K-out-of-N controls
+                    const kControl = document.getElementById('kOutOfNControl');
+                    if (type === 'k-out-of-n') {
+                        kControl.style.display = 'block';
+                    } else {
+                        kControl.style.display = 'none';
+                    }
+                });
+            });
+            
+            // Component count controls for R Global
+            document.getElementById('decreaseComponents').addEventListener('click', function() {
+                if (componentCount > 1) {
+                    componentCount--;
+                    updateComponentCount();
+                    generateRGlobalMatrix();
+                }
+            });
+            
+            document.getElementById('increaseComponents').addEventListener('click', function() {
+                if (componentCount < 10) {
+                    componentCount++;
+                    updateComponentCount();
+                    generateRGlobalMatrix();
+                }
+            });
+            
+            // Component count controls for MTBF Global
+            document.getElementById('decreaseMTBFComponents').addEventListener('click', function() {
+                if (mtbfComponentCount > 1) {
+                    mtbfComponentCount--;
+                    updateMTBFComponentCount();
+                    generateMTBFGlobalMatrix();
+                }
+            });
+            
+            document.getElementById('increaseMTBFComponents').addEventListener('click', function() {
+                if (mtbfComponentCount < 10) {
+                    mtbfComponentCount++;
+                    updateMTBFComponentCount();
+                    generateMTBFGlobalMatrix();
+                }
+            });
+            
+            // Reset buttons
+            document.getElementById('resetRGlobal').addEventListener('click', function() {
+                componentCount = 3;
+                updateComponentCount();
+                generateRGlobalMatrix();
+                document.getElementById('rGlobalResult').classList.remove('show');
+            });
+            
+            document.getElementById('resetMTBFGlobal').addEventListener('click', function() {
+                mtbfComponentCount = 3;
+                updateMTBFComponentCount();
+                generateMTBFGlobalMatrix();
+                document.getElementById('mtbfGlobalResult').classList.remove('show');
+            });
+        }
+        
+        // Update component count display
+        function updateComponentCount() {
+            document.getElementById('componentCount').textContent = componentCount;
+        }
+        
+        // Update MTBF component count display
+        function updateMTBFComponentCount() {
+            document.getElementById('mtbfComponentCount').textContent = mtbfComponentCount;
+        }
+        
+        // Generate R Global matrix
+        function generateRGlobalMatrix() {
+            const matrix = document.getElementById('rGlobalMatrix');
+            matrix.innerHTML = '';
+            
+            for (let i = 1; i <= componentCount; i++) {
+                const row = document.createElement('div');
+                row.className = 'component-row';
+                row.innerHTML = `
+                    <div class="component-label">C${i}</div>
+                    <div class="matrix-input-group">
+                        <label class="lang-text" data-en="Reliability R" data-fr="Fiabilité R">Reliability R</label>
+                        <input type="number" class="matrix-input" id="rGlobal_R${i}" min="0" max="1" step="0.01" placeholder="0.95" value="${0.95 - (i * 0.02)}">
+                    </div>
+                    <div class="matrix-input-group">
+                        <label class="lang-text" data-en="Failure Rate λ" data-fr="Taux de Défaillance λ">Failure Rate λ</label>
+                        <input type="number" class="matrix-input" id="rGlobal_λ${i}" min="0" step="0.001" placeholder="0.001" value="${0.001 + (i * 0.0002)}">
+                    </div>
+                    <div class="matrix-input-group">
+                        <label class="lang-text" data-en="MTBF" data-fr="MTBF">MTBF</label>
+                        <input type="number" class="matrix-input" id="rGlobal_MTBF${i}" min="0" step="1" placeholder="1000" value="${1000 - (i * 50)}">
+                    </div>
+                `;
+                matrix.appendChild(row);
+            }
+        }
+        
+        // Generate MTBF Global matrix
+        function generateMTBFGlobalMatrix() {
+            const matrix = document.getElementById('mtbfGlobalMatrix');
+            matrix.innerHTML = '';
+            
+            for (let i = 1; i <= mtbfComponentCount; i++) {
+                const row = document.createElement('div');
+                row.className = 'component-row';
+                row.innerHTML = `
+                    <div class="component-label">C${i}</div>
+                    <div class="matrix-input-group">
+                        <label class="lang-text" data-en="MTBF" data-fr="MTBF">MTBF</label>
+                        <input type="number" class="matrix-input" id="mtbfGlobal_MTBF${i}" min="1" step="1" placeholder="1000" value="${1000 + (i * 100)}">
+                    </div>
+                    <div class="matrix-input-group">
+                        <label class="lang-text" data-en="Failure Rate λ" data-fr="Taux de Défaillance λ">Failure Rate λ</label>
+                        <input type="number" class="matrix-input" id="mtbfGlobal_λ${i}" min="0" step="0.001" placeholder="0.001" value="${0.001 - (i * 0.0001)}">
+                    </div>
+                    <div class="matrix-input-group">
+                        <label class="lang-text" data-en="Repair Rate μ" data-fr="Taux de Réparation μ">Repair Rate μ</label>
+                        <input type="number" class="matrix-input" id="mtbfGlobal_μ${i}" min="0" step="0.01" placeholder="0.1" value="${0.1 + (i * 0.01)}">
+                    </div>
+                `;
+                matrix.appendChild(row);
+            }
+        }
+        
+        // === الحسابات الأساسية ===
+        
+        // Calculate Reliability R(t)
+        function calculateReliability() {
+            const failureRate = parseFloat(document.getElementById('failureRate').value);
+            const time = parseFloat(document.getElementById('timeR').value);
+            
+            if (isNaN(failureRate) || isNaN(time) || failureRate < 0 || time < 0) {
+                alert(getTranslation('Please enter valid values', 'Veuillez saisir des valeurs valides'));
+                return;
+            }
+            
+            // R(t) = e^(-λt)
+            const reliability = Math.exp(-failureRate * time);
+            const percent = (reliability * 100).toFixed(2);
+            
+            document.getElementById('reliabilityValue').textContent = reliability.toFixed(6);
+            document.getElementById('timeDisplayR').textContent = time;
+            document.getElementById('timeDisplayR2').textContent = time;
+            document.getElementById('reliabilityPercent').textContent = percent;
+            
+            // Show result
+            document.getElementById('reliabilityResult').classList.add('show');
+            
+            // Update chart
+            updateChartWithNewData(failureRate);
+        }
+        
+        // Calculate Unreliability F(t)
+        function calculateUnreliability() {
+            const failureRate = parseFloat(document.getElementById('failureRateF').value);
+            const time = parseFloat(document.getElementById('timeF').value);
+            
+            if (isNaN(failureRate) || isNaN(time) || failureRate < 0 || time < 0) {
+                alert(getTranslation('Please enter valid values', 'Veuillez saisir des valeurs valides'));
+                return;
+            }
+            
+            // F(t) = 1 - e^(-λt)
+            const unreliability = 1 - Math.exp(-failureRate * time);
+            const percent = (unreliability * 100).toFixed(2);
+            
+            document.getElementById('unreliabilityValue').textContent = unreliability.toFixed(6);
+            document.getElementById('timeDisplayF').textContent = time;
+            document.getElementById('timeDisplayF2').textContent = time;
+            document.getElementById('unreliabilityPercent').textContent = percent;
+            
+            // Show result
+            document.getElementById('unreliabilityResult').classList.add('show');
+        }
+        
+        // Calculate MTBF
+        function calculateMTBF() {
+            const totalOperationTime = parseFloat(document.getElementById('totalOperationTime').value);
+            const numberOfFailures = parseFloat(document.getElementById('numberOfFailures').value);
+            
+            if (isNaN(totalOperationTime) || isNaN(numberOfFailures) || numberOfFailures <= 0 || totalOperationTime < 0) {
+                alert(getTranslation('Please enter valid values', 'Veuillez saisir des valeurs valides'));
+                return;
+            }
+            
+            // MTBF = totalOperationTime / numberOfFailures
+            const mtbf = totalOperationTime / numberOfFailures;
+            const failureRate = 1 / mtbf;
+            
+            document.getElementById('mtbfValue').textContent = mtbf.toFixed(2);
+            document.getElementById('failureRateFromMTBF').textContent = failureRate.toFixed(6);
+            
+            // Show result
+            document.getElementById('mtbfResult').classList.add('show');
+        }
+        
+        // Calculate MTTR
+        function calculateMTTR() {
+            const totalRepairTime = parseFloat(document.getElementById('totalRepairTime').value);
+            const numberOfRepairs = parseFloat(document.getElementById('numberOfRepairs').value);
+            
+            if (isNaN(totalRepairTime) || isNaN(numberOfRepairs) || numberOfRepairs <= 0 || totalRepairTime < 0) {
+                alert(getTranslation('Please enter valid values', 'Veuillez saisir des valeurs valides'));
+                return;
+            }
+            
+            // MTTR = totalRepairTime / numberOfRepairs
+            const mttr = totalRepairTime / numberOfRepairs;
+            const totalDowntime = totalRepairTime;
+            
+            document.getElementById('mttrValue').textContent = mttr.toFixed(2);
+            document.getElementById('totalDowntime').textContent = totalDowntime.toFixed(2);
+            
+            // Show result
+            document.getElementById('mttrResult').classList.add('show');
+        }
+        
+        // Calculate Availability
+        function calculateAvailability() {
+            const mtbf = parseFloat(document.getElementById('mtbfInput').value);
+            const mttr = parseFloat(document.getElementById('mttrInput').value);
+            
+            if (isNaN(mtbf) || isNaN(mttr) || mtbf <= 0 || mttr < 0) {
+                alert(getTranslation('Please enter valid values', 'Veuillez saisir des valeurs valides'));
+                return;
+            }
+            
+            // Availability = MTBF / (MTBF + MTTR)
+            const availability = mtbf / (mtbf + mttr);
+            const availabilityPercent = (availability * 100).toFixed(2);
+            
+            document.getElementById('availabilityValue').textContent = availability.toFixed(6);
+            document.getElementById('availabilityPercent').textContent = availabilityPercent;
+            
+            // Show result
+            document.getElementById('availabilityResult').classList.add('show');
+        }
+        
+        // Calculate Failure Rate
+        function calculateFailureRate() {
+            const failures = parseFloat(document.getElementById('failuresForLambda').value);
+            const totalTime = parseFloat(document.getElementById('totalTimeForLambda').value);
+            
+            if (isNaN(failures) || isNaN(totalTime) || totalTime <= 0 || failures < 0) {
+                alert(getTranslation('Please enter valid values', 'Veuillez saisir des valeurs valides'));
+                return;
+            }
+            
+            // λ = failures / totalTime
+            const failureRate = failures / totalTime;
+            const mtbf = 1 / failureRate;
+            
+            document.getElementById('failureRateValue').textContent = failureRate.toFixed(6);
+            document.getElementById('mtbfFromLambda').textContent = mtbf.toFixed(2);
+            
+            // Show result
+            document.getElementById('failureRateResult').classList.add('show');
+        }
+        
+        // Calculate R Global
+        function calculateRGlobal() {
+            let globalReliability = 0;
+            let allValid = true;
+            const componentValues = [];
+            
+            // Collect component values
+            for (let i = 1; i <= componentCount; i++) {
+                const r = parseFloat(document.getElementById(`rGlobal_R${i}`).value);
+                const lambda = parseFloat(document.getElementById(`rGlobal_λ${i}`).value);
+                const mtbf = parseFloat(document.getElementById(`rGlobal_MTBF${i}`).value);
+                
+                let componentReliability = r;
+                
+                // If R is not provided but λ is, calculate R from λ
+                if (isNaN(r) && !isNaN(lambda) && lambda > 0) {
+                    componentReliability = Math.exp(-lambda * 100);
+                }
+                // If neither R nor λ is provided but MTBF is, calculate λ from MTBF
+                else if (isNaN(r) && isNaN(lambda) && !isNaN(mtbf) && mtbf > 0) {
+                    const calculatedLambda = 1 / mtbf;
+                    componentReliability = Math.exp(-calculatedLambda * 100);
+                }
+                
+                if (isNaN(componentReliability) || componentReliability < 0 || componentReliability > 1) {
+                    alert(getTranslation('Please enter valid values for all components', 'Veuillez saisir des valeurs valides pour tous les composants'));
+                    allValid = false;
+                    break;
+                }
+                
+                componentValues.push(componentReliability);
+            }
+            
+            if (allValid) {
+                // Calculate global reliability based on system type
+                switch(currentSystemType) {
+                    case 'series':
+                        // Series system: R_global = ∏ R_i
+                        globalReliability = componentValues.reduce((acc, comp) => acc * comp, 1);
+                        break;
+                    case 'parallel':
+                        // Parallel system: R_global = 1 - ∏ (1 - R_i)
+                        globalReliability = 1 - componentValues.reduce((acc, comp) => acc * (1 - comp), 1);
+                        break;
+                    case 'mixed':
+                        // Mixed system: Average
+                        globalReliability = componentValues.reduce((acc, comp) => acc + comp, 0) / componentValues.length;
+                        break;
+                }
+                
+                const percent = (globalReliability * 100).toFixed(2);
+                document.getElementById('rGlobalValue').textContent = globalReliability.toFixed(6);
+                document.getElementById('rGlobalPercent').textContent = percent;
+                
+                // Update breakdown
+                updateRGlobalBreakdown(componentValues, globalReliability);
+                
+                // Show result
+                document.getElementById('rGlobalResult').classList.add('show');
+            }
+        }
+        
+        // Update R Global breakdown
+        function updateRGlobalBreakdown(components, globalReliability) {
+            const breakdown = document.getElementById('rGlobalBreakdown');
+            breakdown.innerHTML = '';
+            
+            // Add component breakdown
+            components.forEach((comp, index) => {
+                const item = document.createElement('div');
+                item.className = 'breakdown-item';
+                item.innerHTML = `
+                    <div class="breakdown-label">Component ${index+1}</div>
+                    <div class="breakdown-value">${(comp * 100).toFixed(2)}%</div>
+                `;
+                breakdown.appendChild(item);
+            });
+            
+            // Add global result
+            const globalItem = document.createElement('div');
+            globalItem.className = 'breakdown-item';
+            globalItem.style.background = 'rgba(67, 97, 238, 0.1)';
+            globalItem.style.border = '2px solid var(--primary)';
+            globalItem.innerHTML = `
+                <div class="breakdown-label">Global Result</div>
+                <div class="breakdown-value" style="color: var(--primary);">${(globalReliability * 100).toFixed(2)}%</div>
+            `;
+            breakdown.appendChild(globalItem);
+        }
+        
+        // Calculate MTBF Global
+        function calculateMTBFGlobal() {
+            let globalMTBF = 0;
+            let allValid = true;
+            const componentValues = [];
+            
+            // Collect component values
+            for (let i = 1; i <= mtbfComponentCount; i++) {
+                const mtbf = parseFloat(document.getElementById(`mtbfGlobal_MTBF${i}`).value);
+                
+                if (isNaN(mtbf) || mtbf <= 0) {
+                    alert(getTranslation('Please enter valid values for all components', 'Veuillez saisir des valeurs valides pour tous les composants'));
+                    allValid = false;
+                    break;
+                }
+                
+                componentValues.push(mtbf);
+            }
+            
+            if (allValid) {
+                // Calculate global MTBF based on system type
+                switch(currentMTBFSystemType) {
+                    case 'series':
+                        // Series system: λ_global = Σ λ_i, MTBF_global = 1/λ_global
+                        const totalLambda = componentValues.reduce((acc, mtbf) => acc + (1/mtbf), 0);
+                        globalMTBF = 1 / totalLambda;
+                        break;
+                    case 'parallel':
+                        // Parallel system: Simplified average
+                        globalMTBF = componentValues.reduce((acc, mtbf) => acc + mtbf, 0) / componentValues.length * 1.5;
+                        break;
+                    case 'k-out-of-n':
+                        // K-out-of-N system: Average of best components
+                        const k = parseInt(document.getElementById('kValue').value) || 2;
+                        const sorted = [...componentValues].sort((a, b) => b - a);
+                        const bestK = sorted.slice(0, k);
+                        globalMTBF = bestK.reduce((acc, mtbf) => acc + mtbf, 0) / k;
+                        break;
+                }
+                
+                document.getElementById('mtbfGlobalValue').textContent = globalMTBF.toFixed(2);
+                document.getElementById('mtbfGlobalHours').textContent = globalMTBF.toFixed(2);
+                
+                // Update breakdown
+                updateMTBFGlobalBreakdown(componentValues, globalMTBF);
+                
+                // Show result
+                document.getElementById('mtbfGlobalResult').classList.add('show');
+            }
+        }
+        
+        // Update MTBF Global breakdown
+        function updateMTBFGlobalBreakdown(components, globalMTBF) {
+            const breakdown = document.getElementById('mtbfGlobalBreakdown');
+            breakdown.innerHTML = '';
+            
+            // Add component breakdown
+            components.forEach((comp, index) => {
+                const item = document.createElement('div');
+                item.className = 'breakdown-item';
+                item.innerHTML = `
+                    <div class="breakdown-label">Component ${index+1}</div>
+                    <div class="breakdown-value">${comp.toFixed(2)}h</div>
+                `;
+                breakdown.appendChild(item);
+            });
+            
+            // Add global result
+            const globalItem = document.createElement('div');
+            globalItem.className = 'breakdown-item';
+            globalItem.style.background = 'rgba(67, 97, 238, 0.1)';
+            globalItem.style.border = '2px solid var(--primary)';
+            globalItem.innerHTML = `
+                <div class="breakdown-label">Global MTBF</div>
+                <div class="breakdown-value" style="color: var(--primary);">${globalMTBF.toFixed(2)}h</div>
+            `;
+            breakdown.appendChild(globalItem);
+        }
+        
+        // Create chart
+        function createReliabilityChart() {
+            const ctx = document.getElementById('reliabilityChart').getContext('2d');
+            
+            const timeValues = Array.from({length: 20}, (_, i) => i * 10);
+            const failureRate = 0.001;
+            
+            const reliabilityData = timeValues.map(t => Math.exp(-failureRate * t));
+            const unreliabilityData = timeValues.map(t => 1 - Math.exp(-failureRate * t));
+            const failureRateData = timeValues.map(t => failureRate * Math.exp(-failureRate * t));
+            
+            reliabilityChart = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: timeValues,
+                    datasets: [
+                        {
+                            label: 'Reliability R(t)',
+                            data: reliabilityData,
+                            borderColor: '#4361ee',
+                            backgroundColor: 'rgba(67, 97, 238, 0.1)',
+                            borderWidth: 3,
+                            fill: true,
+                            tension: 0.4
+                        },
+                        {
+                            label: 'Unreliability F(t)',
+                            data: unreliabilityData,
+                            borderColor: '#e63946',
+                            backgroundColor: 'rgba(230, 57, 70, 0.1)',
+                            borderWidth: 3,
+                            fill: true,
+                            tension: 0.4,
+                            hidden: true
+                        },
+                        {
+                            label: 'Failure Rate λ(t)',
+                            data: failureRateData,
+                            borderColor: '#f72585',
+                            backgroundColor: 'rgba(247, 37, 133, 0.1)',
+                            borderWidth: 3,
+                            fill: true,
+                            tension: 0.4,
+                            hidden: true
+                        }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            position: 'top',
+                            labels: {
+                                font: {
+                                    family: 'Poppins',
+                                    size: 14
+                                }
+                            }
+                        }
+                    },
+                    scales: {
+                        x: {
+                            title: {
+                                display: true,
+                                text: 'Time (hours)',
+                                font: {
+                                    family: 'Poppins',
+                                    size: 14,
+                                    weight: 'bold'
+                                }
+                            },
+                            grid: {
+                                color: 'rgba(0, 0, 0, 0.1)'
+                            }
+                        },
+                        y: {
+                            title: {
+                                display: true,
+                                text: 'Value',
+                                font: {
+                                    family: 'Poppins',
+                                    size: 14,
+                                    weight: 'bold'
+                                }
+                            },
+                            min: 0,
+                            max: 1,
+                            grid: {
+                                color: 'rgba(0, 0, 0, 0.1)'
+                            }
+                        }
+                    }
+                }
+            });
+        }
+        
+        // Update chart with new data
+        function updateChartWithNewData(failureRate) {
+            if (reliabilityChart) {
+                const timeValues = Array.from({length: 20}, (_, i) => i * 10);
+                
+                const reliabilityData = timeValues.map(t => Math.exp(-failureRate * t));
+                const unreliabilityData = timeValues.map(t => 1 - Math.exp(-failureRate * t));
+                const failureRateData = timeValues.map(t => failureRate * Math.exp(-failureRate * t));
+                
+                reliabilityChart.data.datasets[0].data = reliabilityData;
+                reliabilityChart.data.datasets[1].data = unreliabilityData;
+                reliabilityChart.data.datasets[2].data = failureRateData;
+                
+                reliabilityChart.update();
+            }
+        }
+        
+        // Change chart type
+        function changeChartType(type) {
+            const buttons = document.querySelectorAll('.chart-btn');
+            buttons.forEach(btn => btn.classList.remove('active'));
+            
+            if (reliabilityChart) {
+                reliabilityChart.data.datasets.forEach(dataset => {
+                    dataset.hidden = true;
+                });
+                
+                if (type === 'reliability') {
+                    buttons[0].classList.add('active');
+                    reliabilityChart.data.datasets[0].hidden = false;
+                } else if (type === 'unreliability') {
+                    buttons[1].classList.add('active');
+                    reliabilityChart.data.datasets[1].hidden = false;
+                } else if (type === 'failure') {
+                    buttons[2].classList.add('active');
+                    reliabilityChart.data.datasets[2].hidden = false;
+                } else if (type === 'all') {
+                    buttons[3].classList.add('active');
+                    reliabilityChart.data.datasets.forEach(dataset => {
+                        dataset.hidden = false;
+                    });
+                }
+                
+                reliabilityChart.update();
+            }
+        }
+        
+        // Smooth navigation
+        document.querySelectorAll('nav a').forEach(anchor => {
+            anchor.addEventListener('click', function(e) {
+                if (this.getAttribute('href').startsWith('#')) {
+                    e.preventDefault();
+                    
+                    document.querySelectorAll('nav a').forEach(a => a.classList.remove('active'));
+                    this.classList.add('active');
+                    
+                    const targetId = this.getAttribute('href').substring(1);
+                    const targetElement = document.getElementById(targetId);
+                    
+                    if (targetElement) {
+                        window.scrollTo({
+                            top: targetElement.offsetTop - 80,
+                            behavior: 'smooth'
+                        });
+                    }
+                }
+            });
+        });
+        
+        // Close result boxes when clicking on them
+        document.addEventListener('click', function(e) {
+            if (e.target.closest('.global-result')) {
+                e.target.closest('.global-result').classList.remove('show');
+            }
+        });
+    </script>
+</body>
+</html>
